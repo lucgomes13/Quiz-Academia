@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz Academia</title>
+  <style>
+    /* Reset básico */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom, #000000, #000033); /* Azul e preto */
+      color: #ffffff;
+      line-height: 1.6;
+    }
+
+    header {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background-color: #000033;
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    header h1 {
+      font-size: 1.5rem;
+      margin-left: 1rem;
+    }
+
+    nav a {
+      color: #ffffff;
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      margin-right: 1rem;
+      border-radius: 4px;
+    }
+
+    nav a:hover {
+      background-color: #ff4500; /* Laranja vibrante */
+    }
+
+    main {
+      padding-top: 6rem;
+      padding-bottom: 2rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    section {
+      margin-bottom: 2rem;
+    }
+
+    h2 {
+      color: #ff4500;
+      margin-bottom: 1rem;
+    }
+
+    .quiz-container {
+      background-color: #1a1a1a;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .quiz-container h3 {
+      margin-bottom: 1rem;
+    }
+
+    .quiz-container label {
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    button {
+      background-color: #ff4500;
+      color: #ffffff;
+      border: none;
+      padding: 0.7rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #cc3700;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .result-card {
+      background-color: #1a1a1a;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+      text-align: center;
+    }
+
+    .result-card img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 50%;
+      margin-bottom: 1rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem;
+      background-color: #000033;
+      color: #ffffff;
+      margin-top: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      header h1 {
+        font-size: 1.2rem;
+      }
+
+      nav a {
+        padding: 0.3rem 0.8rem;
+        margin-right: 0.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Quiz Academia</h1>
+    <nav>
+      <a href="#" onclick="showSection('home')">Início</a>
+      <a href="#" onclick="showSection('quiz')">Quiz</a>
+      <a href="#" onclick="showSection('results')">Resultados</a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- Tela Inicial -->
+    <section id="home">
+      <h2>Bem-vindo ao Quiz Academia</h2>
+      <p>Teste seus conhecimentos sobre nutrição e musculação e descubra o quanto você sabe!</p>
+      <button onclick="showSection('quiz')">Comece Agora</button>
+    </section>
+
+    <!-- Quiz -->
+    <section id="quiz" class="hidden">
+      <h2>Escolha uma Categoria</h2>
+      <div>
+        <button onclick="startQuiz('nutricao')">Nutrição</button>
+        <button onclick="startQuiz('musculacao')">Musculação</button>
+      </div>
+      <div id="quizQuestions" class="quiz-container hidden"></div>
+    </section>
+
+    <!-- Resultados -->
+    <section id="results" class="hidden">
+      <div class="result-card">
+        <img src="https://via.placeholder.com/100" alt="Troféu">
+        <h2>Parabéns!</h2>
+        <p id="scoreDisplay">Sua pontuação será exibida aqui.</p>
+        <button onclick="shareResults()">Compartilhar Resultado</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    &copy; 2023 Quiz Academia - Todos os direitos reservados.
+  </footer>
+
+  <script>
+    const quizData = {
+      nutricao: {
+        facil: [
+          { pergunta: "Qual macronutriente é o principal responsável pelo crescimento muscular?", opcoes: ["Proteína", "Gordura", "Carboidrato", "Fibra"], resposta: "Proteína" },
+          { pergunta: "Qual suplemento é mais utilizado para aumentar a força e explosão muscular?", opcoes: ["Whey Protein", "Creatina", "BCAA", "Cafeína"], resposta: "Creatina" },
+          { pergunta: "Qual desses alimentos é uma boa fonte de carboidrato complexo?", opcoes: ["Pão branco", "Arroz integral", "Refrigerante", "Açúcar refinado"], resposta: "Arroz integral" },
+          { pergunta: "Durante o treino, qual é a melhor maneira de manter-se hidratado?", opcoes: ["Beber grandes quantidades de água de uma só vez", "Consumir bebidas alcoólicas para repor energia", "Beber pequenas quantidades de água regularmente", "Evitar beber água para não perder minerais"], resposta: "Beber pequenas quantidades de água regularmente" },
+          { pergunta: "Qual é a principal função das proteínas no corpo humano?", opcoes: ["Fornecer energia", "Construir e reparar tecidos", "Regular a temperatura corporal", "Armazenar gordura"], resposta: "Construir e reparar tecidos" }
+        ],
+        dificil: [
+          { pergunta: "Qual destes nutrientes é um tipo de gordura saudável?", opcoes: ["Gordura trans", "Gordura saturada", "Gordura hidrogenada", "Gordura insaturada"], resposta: "Gordura insaturada" },
+          { pergunta: "O excesso de qual mineral pode causar pressão alta?", opcoes: ["Potássio", "Ferro", "Sódio", "Magnésio"], resposta: "Sódio" },
+          { pergunta: "Qual destes hormônios é regulado pelo consumo de carboidratos?", opcoes: ["Insulina", "Adrenalina", "Melatonina", "Testosterona"], resposta: "Insulina" },
+          { pergunta: "Qual tipo de carboidrato é digerido mais lentamente e ajuda a manter os níveis de açúcar no sangue estáveis?", opcoes: ["Açúcar refinado", "Carboidratos simples", "Carboidratos complexos", "Xarope de milho"], resposta: "Carboidratos complexos" },
+          { pergunta: "O que é um alimento termogênico?", opcoes: ["Um alimento que reduz a temperatura corporal", "Um alimento que acelera o metabolismo e o gasto calórico", "Um alimento que evita a retenção de líquidos", "Um alimento que contém alto teor de gordura trans"], resposta: "Um alimento que acelera o metabolismo e o gasto calórico" }
+        ]
+      },
+      musculacao: {
+        facil: [
+          { pergunta: "Qual desses exercícios é mais eficiente para desenvolver os músculos das pernas?", opcoes: ["Supino reto", "Agachamento livre", "Rosca direta", "Desenvolvimento militar"], resposta: "Agachamento livre" },
+          { pergunta: "Qual desses exercícios é ideal para fortalecer os ombros?", opcoes: ["Elevação lateral", "Stiff", "Pullover", "Cadeira extensora"], resposta: "Elevação lateral" },
+          { pergunta: "Qual desses exercícios trabalha principalmente a parte posterior da coxa (isquiotibiais)?", opcoes: ["Leg press", "Stiff", "Cadeira extensora", "Supino reto"], resposta: "Stiff" },
+          { pergunta: "Qual desses exercícios trabalha tanto o peitoral quanto o tríceps?", opcoes: ["Remada curvada", "Supino reto", "Avanço com halteres", "Elevação de panturrilha"], resposta: "Supino reto" },
+          { pergunta: "Qual a principal diferença entre o agachamento livre e o agachamento no Smith?", opcoes: ["O Smith exige mais equilíbrio do que o livre", "O agachamento livre recruta mais músculos estabilizadores", "O Smith é mais eficiente para hipertrofia", "O agachamento livre reduz a amplitude do movimento"], resposta: "O agachamento livre recruta mais músculos estabilizadores" }
+        ],
+        dificil: [
+          { pergunta: "Qual é o princípio da sobrecarga progressiva?", opcoes: ["Aumentar gradualmente a carga ou intensidade do treino", "Diminuir o tempo de descanso entre as séries", "Aumentar a frequência dos treinos sem alterar a carga", "Manter o mesmo treino por meses para evitar fadiga"], resposta: "Aumentar gradualmente a carga ou intensidade do treino" },
+          { pergunta: "Qual desses hormônios está diretamente ligado ao crescimento muscular?", opcoes: ["Cortisol", "Insulina", "Testosterona", "Melatonina"], resposta: "Testosterona" },
+          { pergunta: "Por que o descanso é essencial para o crescimento muscular?", opcoes: ["Porque o músculo cresce durante o repouso, não durante o treino", "Porque reduz o acúmulo de gordura", "Porque evita que o músculo fique maior do que o necessário", "Porque diminui a queima de calorias"], resposta: "Porque o músculo cresce durante o repouso, não durante o treino" },
+          { pergunta: "Qual desses métodos de treino combina exercícios compostos e isolados para otimizar o crescimento muscular?", opcoes: ["Circuito funcional", "Treino FST-7", "Treino ABC", "Pilates"], resposta: "Treino FST-7" },
+          { pergunta: "O que significa tempo sob tensão (TUT) na musculação?", opcoes: ["Tempo total que o músculo fica contraído durante uma repetição", "Tempo de descanso entre séries", "Duração total do treino na academia", "Quantidade de séries feitas por exercício"], resposta: "Tempo total que o músculo fica contraído durante uma repetição" }
+        ]
+      }
+    };
+
+    let currentQuiz = [];
+    let currentQuestionIndex = 0;
+    let score = 0;
+
+    // Função para alternar entre as telas
+    function showSection(sectionId) {
+      const sections = document.querySelectorAll("section");
+      sections.forEach(section => section.classList.add("hidden"));
+      document.getElementById(sectionId).classList.remove("hidden");
+    }
+
+    // Função para iniciar o quiz
+    function startQuiz(categoria) {
+      currentQuiz = quizData[categoria].facil;
+      currentQuestionIndex = 0;
+      score = 0;
+      showQuestion();
+      document.getElementById("quizQuestions").classList.remove("hidden");
+    }
+
+    // Função para exibir a próxima pergunta
+    function showQuestion() {
+      const quizContainer = document.getElementById("quizQuestions");
+      if (currentQuestionIndex >= currentQuiz.length) {
+        endQuiz();
+        return;
+      }
+
+      const questionData = currentQuiz[currentQuestionIndex];
+      quizContainer.innerHTML = `
+        <h3>${questionData.pergunta}</h3>
+        ${questionData.opcoes.map((opcao, index) => `
+          <label>
+            <input type="radio" name="answer" value="${opcao}">
+            ${opcao}
+          </label>
+        `).join("")}
+        <button onclick="checkAnswer()">Próxima</button>
+      `;
+    }
+
+    // Função para verificar a resposta
+    function checkAnswer() {
+      const selectedOption = document.querySelector('input[name="answer"]:checked');
+      if (!selectedOption) {
+        alert("Por favor, selecione uma resposta!");
+        return;
+      }
+
+      const answer = selectedOption.value;
+      if (answer === currentQuiz[currentQuestionIndex].resposta) {
+        score++;
+      }
+
+      currentQuestionIndex++;
+      showQuestion();
+    }
+
+    // Função para finalizar o quiz
+    function endQuiz() {
+      document.getElementById("quizQuestions").classList.add("hidden");
+      document.getElementById("scoreDisplay").textContent = `Você acertou ${score} de ${currentQuiz.length} perguntas!`;
+      showSection("results");
+    }
+
+    // Função para compartilhar resultados
+    function shareResults() {
+      alert("Resultado compartilhado nas redes sociais!");
+    }
+  </script>
+</body>
+</html>
